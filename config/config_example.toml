@@ -1,0 +1,60 @@
+# 硅基流动
+[openai]
+base_url = "https://api.siliconflow.cn/v1/chat/completion"  # Ollama API 的基础 URL
+api_key = "sk-xxx"                   # 必须：OpenAI API Key
+model = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B" # 使用的模型名称
+max_tokens = 2048                    # 模型生成响应的最大 token 数
+temperature = 0                      # 控制生成文本的随机性，0 到 1 之间
+timeout = 60                         # API 请求超时时间，单位秒
+max_retries = 3                      # 新增：最大重试次数，默认 3
+retry_interval = 1                   # 新增：重试间隔（秒），默认 1
+
+# OPENAI
+#[openai]
+#base_url = "https://api.openai.com/v1"  # 可选：自定义服务器地址（如使用代理或私有部署）
+#api_key = "your-api-key-here"      # 必须：OpenAI API Key
+#model = "gpt-3.5-turbo"            # 可选：使用的模型
+#max_tokens = 2048                    # 可选：最大 token 数
+#temperature = 0.1                  # 可选：温度参数
+#timeout = 30                       # 可选：请求超时时间（秒）
+#max_retries = 3                    # 新增：最大重试次数，默认 3
+#retry_interval = 1                 # 新增：重试间隔（秒），默认 1
+
+# OLLAMA
+#[openai]
+#base_url = "http://localhost:11434/v1"  # Ollama API 的基础 URL
+#api_key = "ollama"                   # 必须：OpenAI API Key
+#model = "qwen2.5:7b-instruct-q4_K_M" # 使用的模型名称
+#max_tokens = 2048                    # 模型生成响应的最大 token 数
+#temperature = 0                      # 控制生成文本的随机性，0 到 1 之间
+#timeout = 60                         # API 请求超时时间，单位秒
+#context_window = 4096                # 上下文窗口大小，影响模型记忆能力
+#max_retries = 3                      # 新增：最大重试次数，默认 3
+#retry_interval = 1                   # 新增：重试间隔（秒），默认 1
+
+# 日志配置
+[logging]
+level = "INFO"                     # 可选：DEBUG, INFO, WARNING, ERROR, CRITICAL
+path = "../logs/analyzer.log"      # 相对 config 目录的路径
+console_output = "True"            # 控制台日志打印
+
+# 要分析的数据列
+[excel]
+content_columns = ["标题/微博内容", "评论内容"]
+
+# 分析方法
+[prompt]
+system_prompt = """
+你是一个情感分析专家，请分析以下内容的情感倾向，并以 JSON 格式返回结果，格式如下：{\"sentiment\": \"正面|中立|负面\"}"
+
+其中 "sentiment" 的值只能是"正面"、"中立"或"负面"之一，不允许其他值或额外字段。
+"""
+static_prompt = """
+**分析规则**：
+1. 主贴明确讨论"理想汽车"时，允许识别评论隐含关联（如主贴提理想L9，评论说“方向盘太滑”则视为负面）
+2. 主贴无关理想汽车时，仅分析评论中明确提到的内容
+3. 负面评价必须明确指向理想产品/服务且含负面词
+4. 提及竞品但未比较理想时标中立
+
+**内容**：
+"""
